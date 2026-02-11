@@ -1,6 +1,9 @@
-export const metadata = {
-  title: '亚马逊产品分析',
-  description: '自动化分析工具',
+import './globals.css'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: '亚马逊全自动分析',
+  description: 'Connected to n8n & Feishu',
 }
 
 export default function RootLayout({

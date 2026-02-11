@@ -4,7 +4,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // 1. 获取飞书 Tenant Access Token
+    // 1. 获取飞书 Token
     const tokenRes = await fetch('https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -18,7 +18,6 @@ export async function POST(request: Request) {
     const accessToken = tokenData.tenant_access_token;
 
     // 2. 写入飞书表 1
-    // ⚠️ 重点修复：目标定价去掉了 Number()，直接传文本
     const addRes = await fetch(`https://open.feishu.cn/open-apis/bitable/v1/apps/${process.env.FEISHU_APP_TOKEN}/tables/${process.env.FEISHU_TABLE_ID}/records`, {
       method: 'POST',
       headers: { 
@@ -33,7 +32,8 @@ export async function POST(request: Request) {
           "功能点": body.features,
           "使用场景": body.scenario,
           "目标人群": body.audience,
-          "目标定价": body.price  // ✅ 修复点：这里原来是 Number(body.price)，现在直接发文本
+          "目标定价": body.price,
+          "竞品rufus问题": body.rufusQuestions // ✅ 新增：写入这一列
         }
       }),
     });

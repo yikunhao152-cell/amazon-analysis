@@ -25,11 +25,10 @@ export async function POST(request: Request) {
         fields: {
           "型号": body.model,
           "竞品ASIN": body.asin,
-          "竞品类型": body.competitorType,
-          "为谁设计": body.forWhom,
+          "产品类型": body.competitorType,
           "使用场景": body.usageScenario,
           "目标人群": body.targetAudience,
-          "自定价格": Number(body.price)
+          "目标定价": Number(body.price)
         }
       }),
     });

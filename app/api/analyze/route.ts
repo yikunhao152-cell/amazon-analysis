@@ -14,43 +14,52 @@ export async function POST(request: Request) {
       }),
     });
     const tokenData = await tokenRes.json();
-    if (!tokenData.tenant_access_token) throw new Error('飞书认证失败');
+    if (!tokenData.tenant_access_token) throw new Error('飞书认证失败: ' + JSON.stringify(tokenData));
     const accessToken = tokenData.tenant_access_token;
 
-    // 2. 写入飞书表格 (注意：fields 中的 key 必须和你飞书表头完全一致)
+    // 2. 写入飞书表 1
+    // ⚠️ 字段名严格对应你的截图：型号, 竞品ASIN, 产品类型, 功能点, 使用场景, 目标人群, 目标定价
     const addRes = await fetch(`https://open.feishu.cn/open-apis/bitable/v1/apps/${process.env.FEISHU_APP_TOKEN}/tables/${process.env.FEISHU_TABLE_ID}/records`, {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      headers: { 
+        'Authorization': `Bearer ${accessToken}`, 
+        'Content-Type': 'application/json' 
+      },
       body: JSON.stringify({
         fields: {
           "型号": body.model,
           "竞品ASIN": body.asin,
-          "产品类型": body.competitorType,
-          "使用场景": body.usageScenario,
-          "目标人群": body.targetAudience,
+          "产品类型": body.type,
+          "功能点": body.features,
+          "使用场景": body.scenario,
+          "目标人群": body.audience,
           "目标定价": Number(body.price)
         }
       }),
     });
-    const addData = await addRes.json();
-    if (addData.code !== 0) throw new Error('写入飞书失败: ' + addData.msg);
-    
-    // 获取新生成的记录 ID
-    const recordId = addData.data.record.record_id;
 
-    // 3. 触发 n8n Webhook
-    // 将 record_id 传给 n8n，告诉它去分析哪一行
-    await fetch(process.env.N8N_WEBHOOK_URL!, {
+    const addData = await addRes.json();
+    if (addData.code !== 0) throw new Error('飞书写入失败: ' + addData.msg);
+    
+    const recordId = addData.data.record.record_id;
+    console.log("飞书写入成功，Record ID:", recordId);
+
+    // 3. 触发 n8n
+    // 发送 { record_id: "..." } 给 n8n
+    const n8nRes = await fetch(process.env.N8N_WEBHOOK_URL!, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        record_id: recordId,
-        input_data: body
+        record_id: recordId 
       }),
     });
 
-    return NextResponse.json({ success: true });
+    if (!n8nRes.ok) throw new Error(`n8n 触发失败: ${n8nRes.statusText}`);
+
+    return NextResponse.json({ success: true, recordId });
+
   } catch (error: any) {
+    console.error("Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

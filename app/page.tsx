@@ -5,7 +5,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState('');
 
-  // 对应你截图里的列
+  // 表单数据状态
   const [formData, setFormData] = useState({
     model: '',         // 型号
     asin: '',          // 竞品ASIN
@@ -13,7 +13,8 @@ export default function Home() {
     features: '',      // 功能点
     scenario: '',      // 使用场景
     audience: '',      // 目标人群
-    price: ''          // 目标定价
+    price: '',         // 目标定价
+    rufusQuestions: '' // ✅ 新增：竞品rufus问题
   });
 
   const handleSubmit = async (e: any) => {
@@ -33,8 +34,6 @@ export default function Home() {
       if (!res.ok) throw new Error(data.error || '请求失败');
 
       setStatus('✅ 成功！数据已写入飞书，n8n 正在后台分析，请去飞书查看结果。');
-      // 可选：清空表单
-      // setFormData({ model: '', asin: '', type: '', features: '', scenario: '', audience: '', price: '' });
     } catch (error: any) {
       console.error(error);
       setStatus(`❌ 失败: ${error.message}`);
@@ -92,7 +91,19 @@ export default function Home() {
         {/* 7. 目标定价 */}
         <div>
           <label style={{display:'block', marginBottom:'5px', fontWeight:'bold'}}>目标定价</label>
-          <input name="price" type="number" required value={formData.price} onChange={handleChange} style={inputStyle} placeholder="例如: 56.99" />
+          <input name="price" required value={formData.price} onChange={handleChange} style={inputStyle} placeholder="例如: 56.99" />
+        </div>
+
+        {/* 8. 竞品rufus问题 (新增) */}
+        <div>
+          <label style={{display:'block', marginBottom:'5px', fontWeight:'bold'}}>竞品 Rufus 问题</label>
+          <textarea 
+            name="rufusQuestions" 
+            value={formData.rufusQuestions} 
+            onChange={handleChange} 
+            style={{...inputStyle, height: '80px', fontFamily: 'inherit'}} 
+            placeholder="例如: Does it have noise cancellation?" 
+          />
         </div>
 
         <button type="submit" disabled={loading} style={{

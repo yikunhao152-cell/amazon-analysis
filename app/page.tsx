@@ -106,7 +106,7 @@ export default function Home() {
              <button onClick={() => {setResult(null); setLoading(false);}} className="btn secondary">分析下一个</button>
           </div>
 
-          <ResultSection title="📢 Listing 标题" content={result["标题"]} reason={result["标题理由"]} />
+          <ResultSection title="📢 Listing 标题" content={result["Listing 标题"]} reason={result["标题理由"]} />
           <ResultSection title="✨ 五点描述" content={result["五点描述"]} reason={result["五点描述理由"]} />
           <ResultSection title="📝 商品描述" content={result["商品描述"]} reason={result["商品描述理由"]} />
           <ResultSection title="🖼️ 主图设计方向" content={result["主图设计方向"]} reason={result["主图设计方向理由"]} />
